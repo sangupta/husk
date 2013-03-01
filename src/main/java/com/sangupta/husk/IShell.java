@@ -14,7 +14,11 @@ public interface IShell {
 	
 	public void setMaskCharacter(char mask);
 	
+	public void setExitCommandNames(String exitName);
+	
 	public void setExitCommandNames(String[] exitNames);
+	
+	public void setHelpCommandNames(String helpName);
 	
 	public void setHelpCommandNames(String[] helpNames);
 

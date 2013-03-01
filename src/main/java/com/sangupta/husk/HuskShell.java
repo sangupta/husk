@@ -79,7 +79,7 @@ public class HuskShell extends AbstractShell {
 		do {
 			String command = null;
 			while(command == null || command.trim().equals("")) {
-				// TODO: add display of prompt
+				this.console.print(this.prompt);
 				command = this.console.readLine();
 			}
 			

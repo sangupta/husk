@@ -17,6 +17,14 @@ public abstract class AbstractShell implements IShell {
 	public void setMaskCharacter(char mask) {
 		this.maskCharacter = mask;
 	}
+	
+	public void setExitCommandNames(String exitName) {
+		if(exitName == null) {
+			return;
+		}
+		
+		this.exitCommandNames = new String[] { exitName };
+	}
 
 	public void setExitCommandNames(String[] exitNames) {
 		if(exitNames == null) {
@@ -24,6 +32,14 @@ public abstract class AbstractShell implements IShell {
 		}
 		
 		this.exitCommandNames = exitNames;
+	}
+	
+	public void setHelpCommandNames(String helpName) {
+		if(helpName == null) {
+			return;
+		}
+		
+		this.helpCommandNames = new String[] { helpName };
 	}
 
 	public void setHelpCommandNames(String[] helpNames) {
