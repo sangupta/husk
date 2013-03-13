@@ -1,5 +1,6 @@
 package com.sangupta.husk;
 
+import java.io.PrintStream;
 import java.util.Set;
 
 import org.reflections.Reflections;
@@ -41,6 +42,11 @@ public class HuskShell extends AbstractShell {
 	 */
 	public HuskShell() {
 		this.console = Consoles.getConsole(ConsoleType.UI);
+		
+		// now initialize the System.in and System.out streams as well
+		System.setIn(this.console.getInputStream());
+		System.setOut(new PrintStream(this.console.getOutputStream()));
+		System.setErr(System.out);
 	}
 	
 	/**
@@ -56,6 +62,8 @@ public class HuskShell extends AbstractShell {
 			return;
 		}
 		
+		// TODO: store commands in a way that we don't have to initialize them
+		// again and again
 		for(Class<? extends HuskShellCommand> command : commands) {
 			
 		}
@@ -68,7 +76,7 @@ public class HuskShell extends AbstractShell {
 	 * @param packageName
 	 */
 	public void loadExternalCommands(String packageName) {
-		
+		// TODO: implementation pending
 	}
 
 	/**
@@ -78,9 +86,10 @@ public class HuskShell extends AbstractShell {
 	public void start() {
 		do {
 			String command = null;
-			while(command == null || command.trim().equals("")) {
+			
+			while(command == null || command.equals("")) {
 				this.console.print(this.prompt);
-				command = this.console.readLine();
+				command = this.console.readLine().trim();
 			}
 			
 			for(String exitName : this.exitCommandNames) {
@@ -116,7 +125,7 @@ public class HuskShell extends AbstractShell {
 	 * 
 	 */
 	public void showShellHelp() {
-		
+		System.out.println("Some help line!");
 	}
 
 	/**
