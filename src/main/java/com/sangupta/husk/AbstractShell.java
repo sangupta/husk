@@ -1,8 +1,12 @@
 package com.sangupta.husk;
 
+import com.sangupta.husk.core.PromptProvider;
+
 public abstract class AbstractShell implements IShell {
 	
 	protected String prompt;
+	
+	protected PromptProvider promptProvider;
 	
 	protected char maskCharacter;
 	
@@ -50,5 +54,8 @@ public abstract class AbstractShell implements IShell {
 		this.helpCommandNames = helpNames;
 	}
 
+	public void setPromptProvider(PromptProvider promptProvider) {
+		this.promptProvider = promptProvider;
+	}
 
 }

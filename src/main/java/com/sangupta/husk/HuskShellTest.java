@@ -1,5 +1,7 @@
 package com.sangupta.husk;
 
+import com.sangupta.husk.core.PromptProvider;
+
 public class HuskShellTest {
 
 	/**
@@ -11,7 +13,16 @@ public class HuskShellTest {
 		
 		// prepare for launch
 		huskShell.initialize();
-		huskShell.setPrompt("Husk> ");
+		
+		PromptProvider promptProvider = new PromptProvider() {
+			
+			@Override
+			public String getPrompt() {
+				return System.currentTimeMillis() + " Husk> ";
+			}
+		};
+		
+		huskShell.setPromptProvider(promptProvider);
 		huskShell.setExitCommandNames("exit");
 		huskShell.setHelpCommandNames("help");
 		huskShell.loadExternalCommands("com.sangupta.andruil.commands");

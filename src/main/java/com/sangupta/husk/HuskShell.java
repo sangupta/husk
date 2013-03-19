@@ -88,7 +88,13 @@ public class HuskShell extends AbstractShell {
 			String command = null;
 			
 			while(command == null || command.equals("")) {
-				this.console.print(this.prompt);
+				
+				if(this.promptProvider != null) {
+					this.console.print(this.promptProvider.getPrompt());
+				} else if(this.prompt != null) {
+					this.console.print(this.prompt);
+				}
+				
 				command = this.console.readLine().trim();
 			}
 			
