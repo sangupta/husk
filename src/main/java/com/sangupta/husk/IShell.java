@@ -1,5 +1,7 @@
 package com.sangupta.husk;
 
+import com.sangupta.husk.core.HuskShellContext;
+
 /**
  * Contract for all shell implementations.
  * 
@@ -22,4 +24,5 @@ public interface IShell {
 	
 	public void setHelpCommandNames(String[] helpNames);
 
+	public void setHuskShellContext(HuskShellContext shellContext);
 }

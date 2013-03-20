@@ -27,6 +27,8 @@ public class HuskShellTest {
 		huskShell.setHelpCommandNames("help");
 		huskShell.loadExternalCommands("com.sangupta.andruil.commands");
 		
+		System.out.println("a\nb");
+		
 		// start the shell instance
 		try {
 			huskShell.start();

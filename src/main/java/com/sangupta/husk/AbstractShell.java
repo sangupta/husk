@@ -1,5 +1,6 @@
 package com.sangupta.husk;
 
+import com.sangupta.husk.core.HuskShellContext;
 import com.sangupta.husk.core.PromptProvider;
 
 public abstract class AbstractShell implements IShell {
@@ -13,6 +14,8 @@ public abstract class AbstractShell implements IShell {
 	protected String[] exitCommandNames = { "exit" };
 	
 	protected String[] helpCommandNames = { "help" };
+	
+	protected HuskShellContext shellContext;
 	
 	public void setPrompt(String prompt) {
 		this.prompt = prompt;
@@ -56,6 +59,11 @@ public abstract class AbstractShell implements IShell {
 
 	public void setPromptProvider(PromptProvider promptProvider) {
 		this.promptProvider = promptProvider;
+	}
+	
+	@Override
+	public void setHuskShellContext(HuskShellContext shellContext) {
+		this.shellContext = shellContext;
 	}
 
 }

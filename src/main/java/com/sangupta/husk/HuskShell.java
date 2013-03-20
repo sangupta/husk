@@ -1,13 +1,20 @@
 package com.sangupta.husk;
 
 import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javassist.Modifier;
 
 import org.reflections.Reflections;
 
 import com.sangupta.consoles.ConsoleType;
 import com.sangupta.consoles.Consoles;
 import com.sangupta.consoles.IConsole;
+import com.sangupta.husk.core.HuskShellContextAware;
+import com.sangupta.husk.util.HuskUtils;
 
 /**
  * Contract for all shell implementations over which powerful
@@ -37,6 +44,11 @@ public class HuskShell extends AbstractShell {
 	protected boolean exitShellRequest = false;
 	
 	/**
+	 * Stores an instance of all commands
+	 */
+	protected final Map<String, HuskShellCommand> COMMAND_MAP = new ConcurrentHashMap<String, HuskShellCommand>();
+	
+	/**
 	 * Create an instance of the {@link HuskShell}.
 	 * 
 	 */
@@ -55,18 +67,7 @@ public class HuskShell extends AbstractShell {
 	 * 
 	 */
 	public void initialize() {
-		Reflections reflections = new Reflections("com.sangupta.husk.commands");
-		Set<Class<? extends HuskShellCommand>> commands = reflections.getSubTypesOf(HuskShellCommand.class);
-		
-		if(commands == null) {
-			return;
-		}
-		
-		// TODO: store commands in a way that we don't have to initialize them
-		// again and again
-		for(Class<? extends HuskShellCommand> command : commands) {
-			
-		}
+		loadCommandsFromPackage("com.sangupta.husk.commands");
 	}
 
 	/**
@@ -76,7 +77,11 @@ public class HuskShell extends AbstractShell {
 	 * @param packageName
 	 */
 	public void loadExternalCommands(String packageName) {
-		// TODO: implementation pending
+		if(packageName == null || packageName.trim().isEmpty()) {
+			throw new IllegalArgumentException("Package name from which commands are to be loaded cannot be null/empty");
+		}
+		
+		loadCommandsFromPackage(packageName);
 	}
 
 	/**
@@ -98,6 +103,16 @@ public class HuskShell extends AbstractShell {
 				command = this.console.readLine().trim();
 			}
 			
+			// extract the command and the arguments in a separate line
+			String[] tokens = command.split("\\s");
+			String[] arguments;
+			if(tokens.length > 1) {
+				command = tokens[0];
+				arguments = Arrays.copyOfRange(tokens, 1, tokens.length);
+			} else {
+				arguments = new String[] { };
+			}
+			
 			for(String exitName : this.exitCommandNames) {
 				if(command.equalsIgnoreCase(exitName)) {
 					this.exitShellRequest = true;
@@ -109,20 +124,39 @@ public class HuskShell extends AbstractShell {
 				break;
 			}
 			
+			boolean helpShown = false;
 			for(String helpName : this.helpCommandNames) {
 				if(this.caseSensitiveCommands) {
 					if(command.equals(helpName)) {
 						showShellHelp();
+						helpShown = true;
 						continue;
 					}
 				} else {
 					if(command.equalsIgnoreCase(helpName)) {
 						showShellHelp();
+						helpShown = true;
 						continue;
 					}
 				}
 			}
 			
+			if(helpShown) {
+				continue;
+			}
+			
+			// try and see which command we are trying to invoke
+			if(COMMAND_MAP.containsKey(command)) {
+				HuskShellCommand shellCommand = COMMAND_MAP.get(command);
+				
+				if(shellCommand instanceof HuskShellContextAware) {
+					((HuskShellContextAware) shellCommand).setShellContext(this.shellContext);
+				}
+
+				shellCommand.execute(arguments);
+			}
+			
+			System.out.println("Unknown command!");
 		} while(true);
 	}
 	
@@ -131,7 +165,28 @@ public class HuskShell extends AbstractShell {
 	 * 
 	 */
 	public void showShellHelp() {
-		System.out.println("Some help line!");
+		if(COMMAND_MAP == null || COMMAND_MAP.isEmpty()) {
+			return;
+		}
+		
+		// find max tool name length
+		int max = 0;
+		Set<String> commandNames = COMMAND_MAP.keySet();
+		for(String name : commandNames) {
+			if(max < name.length()) {
+				max = name.length();
+			}
+		}
+		
+		max += 3;
+
+		for(String name : commandNames) {
+			HuskShellCommand command = COMMAND_MAP.get(name);
+			String helpLine = command.getHelpLine();
+
+			System.out.print(HuskUtils.rightPad(name, max, ' '));
+			System.out.println(helpLine);
+		}
 	}
 
 	/**
@@ -152,6 +207,44 @@ public class HuskShell extends AbstractShell {
 	 */
 	public void stop() {
 		this.console.shutdown();
+	}
+	
+	protected void loadCommandsFromPackage(String packageName) {
+		Reflections reflections = new Reflections(packageName);
+		Set<Class<? extends HuskShellCommand>> commands = reflections.getSubTypesOf(HuskShellCommand.class);
+		
+		if(commands == null) {
+			return;
+		}
+		
+		// TODO: store commands in a way that we don't have to initialize them
+		// again and again
+		for(Class<? extends HuskShellCommand> clazz : commands) {
+			HuskShellCommand command;
+			try {
+				if(Modifier.isAbstract(clazz.getModifiers())) {
+					// no need to instantiate abstract classes
+					continue;
+				}
+				
+				command = clazz.newInstance();
+				
+				if(command != null) {
+					String name = command.getName();
+					if(name == null || name.trim().isEmpty()) {
+						// skip this command
+						// TODO: log as an error
+						continue;
+					}
+					
+					COMMAND_MAP.put(name.trim(), command);
+				}
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 }
