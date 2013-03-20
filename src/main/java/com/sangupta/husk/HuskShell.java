@@ -153,7 +153,13 @@ public class HuskShell extends AbstractShell {
 					((HuskShellContextAware) shellCommand).setShellContext(this.shellContext);
 				}
 
-				shellCommand.execute(arguments);
+				try {
+					shellCommand.execute(arguments);
+				} catch(Throwable t) {
+					t.printStackTrace();
+				}
+				
+				continue;
 			}
 			
 			System.out.println("Unknown command!");
