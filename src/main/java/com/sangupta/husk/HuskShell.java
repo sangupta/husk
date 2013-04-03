@@ -1,3 +1,24 @@
+/**
+ *
+ * Husk - Helps build command line shells
+ * Copyright (c) 2013, Sandeep Gupta
+ * 
+ * http://www.sangupta/projects/husk
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * 		http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
+
 package com.sangupta.husk;
 
 import java.io.PrintStream;
@@ -56,6 +77,8 @@ public class HuskShell extends AbstractShell {
 		this.console = Consoles.getConsole(ConsoleType.UI);
 		
 		// now initialize the System.in and System.out streams as well
+		// TODO: store these streams so that they can be restored when we shut down
+		// and clean up
 		System.setIn(this.console.getInputStream());
 		System.setOut(new PrintStream(this.console.getOutputStream()));
 		System.setErr(System.out);
@@ -167,7 +190,9 @@ public class HuskShell extends AbstractShell {
 	}
 	
 	/**
-	 * Display the shell help message.
+	 * Display the shell help message. This help message basically list down all
+	 * commands that are available to the shell, with their basic description. Displaying
+	 * detailed help messages is the responsibility of the individual command.
 	 * 
 	 */
 	public void showShellHelp() {
@@ -196,7 +221,8 @@ public class HuskShell extends AbstractShell {
 	}
 
 	/**
-	 * Set the window title for this shell, if possible.
+	 * Set the window title for this shell, if possible. This will not reset 
+	 * the window title if <code>null</code> is passed as a parameter.
 	 * 
 	 */
 	public void setTitle(String title) {
@@ -208,13 +234,21 @@ public class HuskShell extends AbstractShell {
 	}
 
 	/**
-	 * Dispose of this shell instance.
+	 * Dispose of this shell instance. This will initiate the shutdown of the attached
+	 * console instance and will release all resources as attached to the instance.
 	 * 
 	 */
 	public void stop() {
 		this.console.shutdown();
 	}
 	
+	/**
+	 * The method helps load all commands that can be found inside the given package name.
+	 * An object class is considered implementing a command if it implements the {@link HuskShellCommand}
+	 * interface.
+	 * 
+	 * @param packageName
+	 */
 	protected void loadCommandsFromPackage(String packageName) {
 		Reflections reflections = new Reflections(packageName);
 		Set<Class<? extends HuskShellCommand>> commands = reflections.getSubTypesOf(HuskShellCommand.class);
