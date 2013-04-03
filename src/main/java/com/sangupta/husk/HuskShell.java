@@ -69,12 +69,16 @@ public class HuskShell extends AbstractShell {
 	 */
 	protected final Map<String, HuskShellCommand> COMMAND_MAP = new ConcurrentHashMap<String, HuskShellCommand>();
 	
+	public HuskShell() {
+		this(0, 0);
+	}
+	
 	/**
 	 * Create an instance of the {@link HuskShell}.
 	 * 
 	 */
-	public HuskShell() {
-		this.console = Consoles.getConsole(ConsoleType.UI);
+	public HuskShell(final int rows, final int columns) {
+		this.console = Consoles.getConsole(ConsoleType.UI, rows, columns);
 		
 		// now initialize the System.in and System.out streams as well
 		// TODO: store these streams so that they can be restored when we shut down
