@@ -22,28 +22,38 @@
 package com.sangupta.husk.core;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
- * Marker interface for objects that need to be used as the Shell
- * Context.
  * 
  * @author sangupta
  *
  */
-public interface HuskShellContext {
+public class DefaultHuskShellContext implements HuskShellContext {
+
+	private File currentDirectory;
 	
-	/**
-	 * Return the current directory in which the commands should operate.
-	 * 
-	 * @return
-	 */
-	public File getCurrentDirectory();
+	public DefaultHuskShellContext() {
+		this.currentDirectory = new File(".").getAbsoluteFile().getParentFile();
+	}
 
-	/**
-	 * Change the current directory to the one provided.
-	 * 
-	 * @param file
-	 */
-	public void changeCurrentDirectory(File file);
+	@Override
+	public File getCurrentDirectory() {
+		return currentDirectory;
+	}
 
+	@Override
+	public void changeCurrentDirectory(File file) {
+		if(file != null && file.exists() && file.isDirectory()) {
+			String path;
+			try {
+				path = file.getCanonicalPath();
+			} catch(IOException e) {
+				path = file.getAbsolutePath();
+			}
+			
+			this.currentDirectory = new File(path);
+		}
+	}
+	
 }

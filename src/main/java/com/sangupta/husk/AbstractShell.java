@@ -21,6 +21,7 @@
 
 package com.sangupta.husk;
 
+import com.sangupta.husk.core.DefaultHuskShellContext;
 import com.sangupta.husk.core.HuskShellContext;
 import com.sangupta.husk.core.HuskShellContextAware;
 import com.sangupta.husk.core.PromptProvider;
@@ -70,7 +71,7 @@ public abstract class AbstractShell implements IShell {
 	 * Shell context to use to be passed to various commands that implement
 	 * the {@link HuskShellContextAware} interface.
 	 */
-	protected HuskShellContext shellContext;
+	protected HuskShellContext shellContext = new DefaultHuskShellContext();
 	
 	/**
 	 * Set the new value of the prompt.
@@ -146,11 +147,24 @@ public abstract class AbstractShell implements IShell {
 	}
 	
 	/**
+	 * Return the current shell context.
+	 * 
+	 * @return
+	 */
+	public HuskShellContext getCurrentShellContext() {
+		return this.shellContext;
+	}
+	
+	/**
 	 * Set a new {@link HuskShellContext}.
 	 * 
 	 */
 	@Override
 	public void setHuskShellContext(HuskShellContext shellContext) {
+		if(shellContext == null) {
+			throw new IllegalArgumentException("ShellContext cannot be null");
+		}
+		
 		this.shellContext = shellContext;
 	}
 
