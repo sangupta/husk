@@ -182,10 +182,14 @@ public class HuskShell extends AbstractShell {
 					t.printStackTrace();
 				}
 				
+				// output a single new line char
+				this.console.print('\n');
+				
 				continue;
 			}
 			
-			System.out.println("Unknown command!");
+			this.console.println("Unknown command!");
+			this.console.print('\n');
 		} while(true);
 	}
 	
@@ -215,9 +219,11 @@ public class HuskShell extends AbstractShell {
 			HuskShellCommand command = COMMAND_MAP.get(name);
 			String helpLine = command.getHelpLine();
 
-			System.out.print(HuskUtils.rightPad(name, max, ' '));
-			System.out.println(helpLine);
+			this.console.print(HuskUtils.rightPad(name, max, ' '));
+			this.console.println(helpLine);
 		}
+		
+		this.console.print('\n');
 	}
 
 	/**
