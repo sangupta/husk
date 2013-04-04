@@ -21,6 +21,7 @@
 
 package com.sangupta.husk;
 
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Map;
@@ -65,24 +66,46 @@ public class HuskShell extends AbstractShell {
 	protected boolean exitShellRequest = false;
 	
 	/**
+	 * Internal reference to the input stream - before Husk will replace it.
+	 */
+	protected final InputStream originalInputStream;
+	
+	/**
+	 * Internal reference to the output stream - before Husk will replace it.
+	 */
+	protected final PrintStream originalOutStream;
+	
+	/**
+	 * Internal reference to the error stream - before Husk will replace it.
+	 */
+	protected final PrintStream originalErrorStream;
+	
+	/**
 	 * Stores an instance of all commands
 	 */
 	protected final Map<String, HuskShellCommand> COMMAND_MAP = new ConcurrentHashMap<String, HuskShellCommand>();
 	
+	/**
+	 * Default constructor
+	 */
 	public HuskShell() {
 		this(0, 0);
 	}
 	
 	/**
+	 * 
 	 * Create an instance of the {@link HuskShell}.
 	 * 
 	 */
 	public HuskShell(final int rows, final int columns) {
 		this.console = Consoles.getConsole(ConsoleType.UI, rows, columns);
+
+		// store original references
+		this.originalInputStream = System.in;
+		this.originalOutStream = System.out;
+		this.originalErrorStream = System.err;
 		
-		// now initialize the System.in and System.out streams as well
-		// TODO: store these streams so that they can be restored when we shut down
-		// and clean up
+		// setup Husk references
 		System.setIn(this.console.getInputStream());
 		System.setOut(new PrintStream(this.console.getOutputStream()));
 		System.setErr(System.out);
@@ -249,7 +272,13 @@ public class HuskShell extends AbstractShell {
 	 * 
 	 */
 	public void stop() {
+		// close the console
 		this.console.shutdown();
+		
+		// reset the original streams
+		System.setIn(this.originalInputStream);
+		System.setOut(this.originalOutStream);
+		System.setErr(this.originalErrorStream);
 	}
 	
 	/**
