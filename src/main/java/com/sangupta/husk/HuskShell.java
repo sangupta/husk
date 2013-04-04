@@ -99,6 +99,19 @@ public class HuskShell extends AbstractShell {
 	 */
 	public HuskShell(final int rows, final int columns) {
 		this.console = Consoles.getConsole(ConsoleType.UI, rows, columns);
+		
+		// add the shutdown hook
+		this.console.addShutdownHook(new Runnable() {
+			
+			@Override
+			public void run() {
+				// clean up the console
+				stop();
+				
+				// interrupt this thread
+				exitShellRequest = true;
+			}
+		});
 
 		// store original references
 		this.originalInputStream = System.in;
@@ -143,7 +156,6 @@ public class HuskShell extends AbstractShell {
 			String command = null;
 			
 			while(command == null || command.equals("")) {
-				
 				if(this.promptProvider != null) {
 					this.console.print(this.promptProvider.getPrompt());
 				} else if(this.prompt != null) {
@@ -151,6 +163,10 @@ public class HuskShell extends AbstractShell {
 				}
 				
 				command = this.console.readLine().trim();
+				
+				if(this.exitShellRequest) {
+					break;
+				}
 			}
 			
 			// extract the command and the arguments in a separate line
