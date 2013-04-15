@@ -25,23 +25,40 @@ import java.io.File;
 import java.io.IOException;
 
 /**
+ * A default implementation of the {@link HuskShellContext} that allows for
+ * rapid roll-out of shells.
  * 
  * @author sangupta
  *
  */
 public class DefaultHuskShellContext implements HuskShellContext {
 
-	private File currentDirectory;
+	/**
+	 * The current directory that the shell is running in.
+	 */
+	protected File currentDirectory;
 	
+	/**
+	 * Default constructor that sets the current directory to the folder
+	 * from which the application is launched in.
+	 * 
+	 */
 	public DefaultHuskShellContext() {
 		this.currentDirectory = new File(".").getAbsoluteFile().getParentFile();
 	}
 
+	/**
+	 * Return the current directory.
+	 */
 	@Override
 	public File getCurrentDirectory() {
-		return currentDirectory;
+		return this.currentDirectory;
 	}
 
+	/**
+	 * Change the current directory to the given folder.
+	 * 
+	 */
 	@Override
 	public void changeCurrentDirectory(File file) {
 		if(file != null && file.exists() && file.isDirectory()) {
@@ -55,5 +72,5 @@ public class DefaultHuskShellContext implements HuskShellContext {
 			this.currentDirectory = new File(path);
 		}
 	}
-	
+
 }

@@ -23,7 +23,10 @@ package com.sangupta.husk;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -257,8 +260,13 @@ public class HuskShell extends AbstractShell {
 		}
 		
 		max += 3;
-
-		for(String name : commandNames) {
+		
+		// sort the command names
+		List<String> names = new ArrayList<String>(commandNames);
+		Collections.sort(names);
+		
+		// show the list
+		for(String name : names) {
 			HuskShellCommand command = COMMAND_MAP.get(name);
 			String helpLine = command.getHelpLine();
 

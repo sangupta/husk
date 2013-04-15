@@ -45,5 +45,5 @@ public interface HuskShellContext {
 	 * @param file
 	 */
 	public void changeCurrentDirectory(File file);
-
+	
 }
