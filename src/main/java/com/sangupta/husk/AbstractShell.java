@@ -39,7 +39,7 @@ public abstract class AbstractShell implements IShell {
 	/**
 	 * The prompt that needs to be displayed
 	 */
-	protected String prompt;
+	protected String prompt = "Husk >";
 	
 	/**
 	 * The prompt provider to use, if any. If a prompt provider is provided
