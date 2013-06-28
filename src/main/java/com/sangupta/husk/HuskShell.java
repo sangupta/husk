@@ -21,8 +21,6 @@
 
 package com.sangupta.husk;
 
-import java.io.InputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,6 +36,9 @@ import org.reflections.Reflections;
 import com.sangupta.consoles.ConsoleType;
 import com.sangupta.consoles.Consoles;
 import com.sangupta.consoles.IConsole;
+import com.sangupta.consoles.core.InputKey;
+import com.sangupta.consoles.core.KeyTrapHandler;
+import com.sangupta.consoles.core.SpecialInputKey;
 import com.sangupta.husk.core.HuskShellContextAware;
 import com.sangupta.husk.util.HuskUtils;
 
@@ -69,21 +70,6 @@ public class HuskShell extends AbstractShell {
 	protected boolean exitShellRequest = false;
 	
 	/**
-	 * Internal reference to the input stream - before Husk will replace it.
-	 */
-	protected final InputStream originalInputStream;
-	
-	/**
-	 * Internal reference to the output stream - before Husk will replace it.
-	 */
-	protected final PrintStream originalOutStream;
-	
-	/**
-	 * Internal reference to the error stream - before Husk will replace it.
-	 */
-	protected final PrintStream originalErrorStream;
-	
-	/**
 	 * Stores an instance of all commands
 	 */
 	protected final Map<String, HuskShellCommand> COMMAND_MAP = new ConcurrentHashMap<String, HuskShellCommand>();
@@ -101,7 +87,7 @@ public class HuskShell extends AbstractShell {
 	 * 
 	 */
 	public HuskShell(final int rows, final int columns) {
-		this.console = Consoles.getConsole(ConsoleType.UI, rows, columns);
+		this.console = Consoles.getConsole(ConsoleType.Pure);
 		
 		// add the shutdown hook
 		this.console.addShutdownHook(new Runnable() {
@@ -116,15 +102,7 @@ public class HuskShell extends AbstractShell {
 			}
 		});
 
-		// store original references
-		this.originalInputStream = System.in;
-		this.originalOutStream = System.out;
-		this.originalErrorStream = System.err;
-		
-		// setup Husk references
-		System.setIn(this.console.getInputStream());
-		System.setOut(new PrintStream(this.console.getOutputStream()));
-		System.setErr(System.out);
+		this.console.switchStreams();
 	}
 	
 	/**
@@ -155,6 +133,8 @@ public class HuskShell extends AbstractShell {
 	 * 
 	 */
 	public void start() {
+		addSpecialKeyHooks();
+		
 		do {
 			String command = null;
 			
@@ -238,7 +218,22 @@ public class HuskShell extends AbstractShell {
 			this.console.print('\n');
 		} while(true);
 	}
-	
+
+	/**
+	 * Add special key hooks like up arrow key and down arrow key.
+	 * 
+	 */
+	private void addSpecialKeyHooks() {
+		this.console.addKeyTrap(new InputKey(SpecialInputKey.UpArrow), new KeyTrapHandler() {
+			
+			@Override
+			public boolean handleKeyInvocation(InputKey key) {
+				System.out.println("Handled");
+				return false;
+			}
+		});
+	}
+
 	/**
 	 * Display the shell help message. This help message basically list down all
 	 * commands that are available to the shell, with their basic description. Displaying
@@ -298,11 +293,6 @@ public class HuskShell extends AbstractShell {
 	public void stop() {
 		// close the console
 		this.console.shutdown();
-		
-		// reset the original streams
-		System.setIn(this.originalInputStream);
-		System.setOut(this.originalOutStream);
-		System.setErr(this.originalErrorStream);
 	}
 	
 	/**
