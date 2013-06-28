@@ -87,7 +87,7 @@ public class HuskShell extends AbstractShell {
 	 * 
 	 */
 	public HuskShell(final int rows, final int columns) {
-		this.console = Consoles.getConsole(ConsoleType.Pure);
+		this.console = Consoles.getConsole(ConsoleType.BestEffort);
 		
 		// add the shutdown hook
 		this.console.addShutdownHook(new Runnable() {
