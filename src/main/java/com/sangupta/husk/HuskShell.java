@@ -39,6 +39,7 @@ import com.sangupta.consoles.IConsole;
 import com.sangupta.consoles.core.InputKey;
 import com.sangupta.consoles.core.KeyTrapHandler;
 import com.sangupta.consoles.core.SpecialInputKey;
+import com.sangupta.husk.core.DefaultHuskShellContext;
 import com.sangupta.husk.core.HuskShellContextAware;
 import com.sangupta.husk.util.HuskUtils;
 
@@ -87,7 +88,8 @@ public class HuskShell extends AbstractShell {
 	 * 
 	 */
 	public HuskShell(final int rows, final int columns) {
-		this.console = Consoles.getConsole(ConsoleType.BestEffort);
+		this.console = Consoles.getConsole(ConsoleType.UI);
+		this.shellContext = new DefaultHuskShellContext(this.console);
 		
 		// add the shutdown hook
 		this.console.addShutdownHook(new Runnable() {
@@ -126,6 +128,16 @@ public class HuskShell extends AbstractShell {
 		}
 		
 		loadCommandsFromPackage(packageName);
+	}
+	
+	/**
+	 * Return the {@link IConsole} instance associated with this
+	 * shell.
+	 * 
+	 * @return
+	 */
+	public IConsole getConsole() {
+		return this.console;
 	}
 
 	/**

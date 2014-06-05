@@ -23,6 +23,8 @@ package com.sangupta.husk.core;
 
 import java.io.File;
 
+import com.sangupta.consoles.IConsole;
+
 /**
  * Marker interface for objects that need to be used as the Shell
  * Context.
@@ -31,6 +33,13 @@ import java.io.File;
  *
  */
 public interface HuskShellContext {
+	
+	/**
+	 * Return the current console that we are working on
+	 * 
+	 * @return
+	 */
+	public IConsole getConsole();
 	
 	/**
 	 * Return the current directory in which the commands should operate.

@@ -24,6 +24,8 @@ package com.sangupta.husk.core;
 import java.io.File;
 import java.io.IOException;
 
+import com.sangupta.consoles.IConsole;
+
 /**
  * A default implementation of the {@link HuskShellContext} that allows for
  * rapid roll-out of shells.
@@ -32,6 +34,12 @@ import java.io.IOException;
  *
  */
 public class DefaultHuskShellContext implements HuskShellContext {
+	
+	/**
+	 * The {@link IConsole} instance we are currently working on
+	 * 
+	 */
+	protected final IConsole console;
 
 	/**
 	 * The current directory that the shell is running in.
@@ -43,7 +51,8 @@ public class DefaultHuskShellContext implements HuskShellContext {
 	 * from which the application is launched in.
 	 * 
 	 */
-	public DefaultHuskShellContext() {
+	public DefaultHuskShellContext(IConsole console) {
+		this.console = console;
 		this.currentDirectory = new File(".").getAbsoluteFile().getParentFile();
 	}
 
@@ -71,6 +80,11 @@ public class DefaultHuskShellContext implements HuskShellContext {
 			
 			this.currentDirectory = new File(path);
 		}
+	}
+
+	@Override
+	public IConsole getConsole() {
+		return this.console;
 	}
 
 }

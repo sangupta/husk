@@ -21,7 +21,6 @@
 
 package com.sangupta.husk;
 
-import com.sangupta.husk.core.DefaultHuskShellContext;
 import com.sangupta.husk.core.HuskShellContext;
 import com.sangupta.husk.core.HuskShellContextAware;
 import com.sangupta.husk.core.PromptProvider;
@@ -71,7 +70,7 @@ public abstract class AbstractShell implements IShell {
 	 * Shell context to use to be passed to various commands that implement
 	 * the {@link HuskShellContextAware} interface.
 	 */
-	protected HuskShellContext shellContext = new DefaultHuskShellContext();
+	protected HuskShellContext shellContext;
 	
 	/**
 	 * Set the new value of the prompt.
