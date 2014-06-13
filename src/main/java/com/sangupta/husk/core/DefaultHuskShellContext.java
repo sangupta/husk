@@ -39,7 +39,7 @@ public class DefaultHuskShellContext implements HuskShellContext {
 	 * The {@link IConsole} instance we are currently working on
 	 * 
 	 */
-	protected final IConsole console;
+	protected IConsole console;
 
 	/**
 	 * The current directory that the shell is running in.
@@ -51,8 +51,7 @@ public class DefaultHuskShellContext implements HuskShellContext {
 	 * from which the application is launched in.
 	 * 
 	 */
-	public DefaultHuskShellContext(IConsole console) {
-		this.console = console;
+	public DefaultHuskShellContext() {
 		this.currentDirectory = new File(".").getAbsoluteFile().getParentFile();
 	}
 
@@ -85,6 +84,13 @@ public class DefaultHuskShellContext implements HuskShellContext {
 	@Override
 	public IConsole getConsole() {
 		return this.console;
+	}
+
+	/**
+	 * @param console the console to set
+	 */
+	public void setConsole(IConsole console) {
+		this.console = console;
 	}
 
 }

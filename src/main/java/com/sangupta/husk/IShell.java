@@ -21,6 +21,7 @@
 
 package com.sangupta.husk;
 
+import com.sangupta.consoles.IConsole;
 import com.sangupta.husk.core.HuskShellContext;
 
 /**
@@ -46,5 +47,6 @@ public interface IShell {
 	public void setHelpCommandNames(String[] helpNames);
 
 	public void setHuskShellContext(HuskShellContext shellContext);
-	
+
+	public IConsole getConsole();
 }
