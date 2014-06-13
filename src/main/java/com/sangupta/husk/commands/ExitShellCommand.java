@@ -43,4 +43,9 @@ public class ExitShellCommand implements HuskShellCommand {
 		
 	}
 
+	@Override
+	public String[] getNameAlias() {
+		return new String[] { "quit" };
+	}
+
 }

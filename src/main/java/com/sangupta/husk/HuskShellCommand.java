@@ -38,6 +38,14 @@ public interface HuskShellCommand {
 	public String getName();
 	
 	/**
+	 * Return the alias names for the command. These are other
+	 * names for the same command.
+	 * 
+	 * @return
+	 */
+	public String[] getNameAlias();
+	
+	/**
 	 * Return the quick line help for this command.
 	 * 
 	 * @return

@@ -343,7 +343,23 @@ public class HuskShell extends AbstractShell {
 						continue;
 					}
 					
-					COMMAND_MAP.put(name.trim(), command);
+					// TODO: log clash
+					if(!COMMAND_MAP.containsKey(name.trim())) {
+						COMMAND_MAP.put(name.trim(), command);
+					}
+					
+					// check for command aliases
+					String[] alias = command.getNameAlias();
+					if(alias != null && alias.length > 0) {
+						for(String newName : alias) {
+							if(newName != null) {
+								// TODO: log clash
+								if(!COMMAND_MAP.containsKey(newName.trim())) {
+									COMMAND_MAP.put(newName.trim(), command);
+								}
+							}
+						}
+					}
 				}
 			} catch (InstantiationException e) {
 				e.printStackTrace();
