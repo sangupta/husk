@@ -82,6 +82,10 @@ public class HuskShell extends AbstractShell {
 		this(0, 0);
 	}
 	
+	public HuskShell(final ConsoleType consoleType) {
+		this(consoleType, 0, 0);
+	}
+	
 	/**
 	 * 
 	 * Create an instance of the {@link HuskShell}.
