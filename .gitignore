@@ -31,7 +31,9 @@ docs/*
 
 # Maven noise
 target/*
+dependency-reduced-pom.xml
 
 # Project specific
 .settings/*
 /target
+/target/
