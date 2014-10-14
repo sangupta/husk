@@ -96,7 +96,7 @@ public class HuskShell extends AbstractShell {
 	}
 	
 	public HuskShell(final ConsoleType consoleType, final int rows, final int columns) {
-		this.console = Consoles.getConsole(consoleType);
+		this.console = Consoles.getConsole(consoleType, rows, columns);
 		this.shellContext = new DefaultHuskShellContext();
 		((DefaultHuskShellContext) this.shellContext).setConsole(this.console);
 		
