@@ -343,6 +343,20 @@ public class HuskShell extends AbstractShell {
 	}
 	
 	/**
+	 * Add a new {@link HuskShellCommand} dynamically to the runnning shell
+	 * instance.
+	 * 
+	 * @param command
+	 */
+	public boolean addCommand(HuskShellCommand command) {
+		if(command == null) {
+			return false;
+		}
+		
+		return addCommandInternal(command);
+	}
+	
+	/**
 	 * The method helps load all commands that can be found inside the given package name.
 	 * An object class is considered implementing a command if it implements the {@link HuskShellCommand}
 	 * interface.
@@ -369,38 +383,46 @@ public class HuskShell extends AbstractShell {
 				
 				command = clazz.newInstance();
 				
-				if(command != null) {
-					String name = command.getName();
-					if(name == null || name.trim().isEmpty()) {
-						// skip this command
-						// TODO: log as an error
-						continue;
-					}
-					
-					// TODO: log clash
-					if(!COMMAND_MAP.containsKey(name.trim())) {
-						COMMAND_MAP.put(name.trim(), command);
-					}
-					
-					// check for command aliases
-					String[] alias = command.getNameAlias();
-					if(alias != null && alias.length > 0) {
-						for(String newName : alias) {
-							if(newName != null) {
-								// TODO: log clash
-								if(!COMMAND_MAP.containsKey(newName.trim())) {
-									COMMAND_MAP.put(newName.trim(), command);
-								}
-							}
-						}
-					}
-				}
+				addCommandInternal(command);
 			} catch (InstantiationException e) {
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	private boolean addCommandInternal(HuskShellCommand command) {
+		if(command == null) {
+			return false;
+		}
+		
+		String name = command.getName();
+		if(name == null || name.trim().isEmpty()) {
+			// skip this command
+			// TODO: log as an error
+			return false;
+		}
+		
+		// TODO: log clash
+		if(!COMMAND_MAP.containsKey(name.trim())) {
+			COMMAND_MAP.put(name.trim(), command);
+		}
+		
+		// check for command aliases
+		String[] alias = command.getNameAlias();
+		if(alias != null && alias.length > 0) {
+			for(String newName : alias) {
+				if(newName != null) {
+					// TODO: log clash
+					if(!COMMAND_MAP.containsKey(newName.trim())) {
+						COMMAND_MAP.put(newName.trim(), command);
+					}
+				}
+			}
+		}
+		
+		return true;
 	}
 	
 }
