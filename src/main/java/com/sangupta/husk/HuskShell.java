@@ -112,6 +112,17 @@ public class HuskShell extends AbstractShell {
 				exitShellRequest = true;
 			}
 		});
+		
+		// add Ctrl+C hook
+		this.console.addKeyTrap(new InputKey('c', false, true), new KeyTrapHandler() {
+			
+			@Override
+			public boolean handleKeyInvocation(InputKey key) {
+				System.out.println("Ctrl+C pressed");
+				return false;
+			}
+			
+		});
 
 		this.console.switchStreams();
 	}
