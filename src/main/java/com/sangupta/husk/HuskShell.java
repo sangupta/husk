@@ -68,7 +68,7 @@ public class HuskShell extends AbstractShell {
 	 * Indicates whether the shell needs to exit.
 	 * 
 	 */
-	protected boolean exitShellRequest = false;
+	protected volatile boolean exitShellRequest = false;
 	
 	/**
 	 * Stores an instance of all commands
@@ -157,20 +157,11 @@ public class HuskShell extends AbstractShell {
 		addSpecialKeyHooks();
 		
 		do {
-			String command = null;
+			String command = readCommandString();
 			
-			while(command == null || command.equals("")) {
-				if(this.promptProvider != null) {
-					this.console.print(this.promptProvider.getPrompt());
-				} else if(this.prompt != null) {
-					this.console.print(this.prompt);
-				}
-				
-				command = this.console.readLine().trim();
-				
-				if(this.exitShellRequest) {
-					break;
-				}
+			// check for shell exit
+			if(this.exitShellRequest) {
+				break;
 			}
 			
 			// extract the command and the arguments in a separate line
@@ -182,65 +173,134 @@ public class HuskShell extends AbstractShell {
 			} else {
 				arguments = new String[] { };
 			}
-			
-			for(String exitName : this.exitCommandNames) {
-				if(command.equalsIgnoreCase(exitName)) {
-					this.exitShellRequest = true;
-					break;
-				}
-			}
-			
+
+			// check for shell exit
+			checkForShellExitCommand(command);
 			if(this.exitShellRequest) {
 				break;
 			}
-			
-			boolean helpShown = false;
-			for(String helpName : this.helpCommandNames) {
-				if(this.caseSensitiveCommands) {
-					if(command.equals(helpName)) {
-						showShellHelp();
-						helpShown = true;
-						continue;
-					}
-				} else {
-					if(command.equalsIgnoreCase(helpName)) {
-						showShellHelp();
-						helpShown = true;
-						continue;
-					}
-				}
-			}
-			
+
+			// check for help
+			boolean helpShown = showHelpIfNeeded(command);
 			if(helpShown) {
 				continue;
 			}
 			
 			// try and see which command we are trying to invoke
-			if(COMMAND_MAP.containsKey(command)) {
-				HuskShellCommand shellCommand = COMMAND_MAP.get(command);
-				
-				if(shellCommand instanceof HuskShellContextAware) {
-					((HuskShellContextAware) shellCommand).setShellContext(this.shellContext);
-				}
-
-				launchCommand(shellCommand, arguments);
-				
-				// output a single new line char
+			boolean commandHandled = handleCommand(command, arguments);
+			if(!commandHandled) {
+				this.console.println("Unknown command!");
 				this.console.print('\n');
-				
-				continue;
+			}
+		} while(true);
+	}
+
+	/**
+	 * Check if the command passed was a request to terminate the shell
+	 * 
+	 * @param command
+	 *            the command name entered by the user
+	 */
+	private void checkForShellExitCommand(String command) {
+		for(String exitName : this.exitCommandNames) {
+			if(command.equalsIgnoreCase(exitName)) {
+				this.exitShellRequest = true;
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Handle the command if it is in our list of available commands.
+	 * 
+	 * @param command
+	 *            the command to be invoked
+	 * 
+	 * @param arguments
+	 *            the arguments to be passed
+	 * 
+	 * @return <code>true</code> if the command was handled, <code>false</code>
+	 *         otherwise
+	 */
+	private boolean handleCommand(String command, String[] arguments) {
+		if(!COMMAND_MAP.containsKey(command)) {
+			return false;
+		}
+		
+		HuskShellCommand shellCommand = COMMAND_MAP.get(command);
+		
+		if(shellCommand instanceof HuskShellContextAware) {
+			((HuskShellContextAware) shellCommand).setShellContext(this.shellContext);
+		}
+
+		launchCommand(shellCommand, arguments);
+		
+		// output a single new line char
+		this.console.print('\n');
+		return true;
+	}
+
+	/**
+	 * Show help to the user if needed.
+	 * 
+	 * @param command
+	 *            the command name that was passed
+	 * 
+	 * @return <code>true</code> if help was shown, <code>false</code> otherwise
+	 */
+	private boolean showHelpIfNeeded(String command) {
+		for(String helpName : this.helpCommandNames) {
+			if(this.caseSensitiveCommands) {
+				if(command.equals(helpName)) {
+					showShellHelp();
+					return true;
+				}
+			} else {
+				if(command.equalsIgnoreCase(helpName)) {
+					showShellHelp();
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+
+	/**
+	 * Read the command string from the console as user input.
+	 * 
+	 * @return the command string entered.
+	 * 
+	 */
+	private String readCommandString() {
+		String command = null;
+		
+		while(command == null || command.equals("")) {
+			if(this.promptProvider != null) {
+				this.console.print(this.promptProvider.getPrompt());
+			} else if(this.prompt != null) {
+				this.console.print(this.prompt);
 			}
 			
-			this.console.println("Unknown command!");
-			this.console.print('\n');
-		} while(true);
+			command = this.console.readLine().trim();
+			
+			if(this.exitShellRequest) {
+				break;
+			}
+		}
+		
+		return command;
 	}
 
 	/**
 	 * Launch the command in a separate thread and join it.
 	 * 
 	 * @param shellCommand
+	 *            the shell command instance to be launched, cannot be
+	 *            <code>null</code>
+	 * 
 	 * @param arguments
+	 *            the arguments to be passed to the command
 	 */
 	private void launchCommand(final HuskShellCommand shellCommand, final String[] arguments) {
 		Thread childThread = new Thread(new Runnable() {
