@@ -93,4 +93,9 @@ public class DefaultHuskShellContext implements HuskShellContext {
 		this.console = console;
 	}
 
+	@Override
+	public void executeCommand(String[] command) {
+		
+	}
+
 }

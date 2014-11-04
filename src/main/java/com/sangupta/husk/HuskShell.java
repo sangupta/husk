@@ -41,6 +41,7 @@ import com.sangupta.consoles.core.KeyTrapHandler;
 import com.sangupta.consoles.core.SpecialInputKey;
 import com.sangupta.husk.core.DefaultHuskShellContext;
 import com.sangupta.husk.core.HuskShellContextAware;
+import com.sangupta.husk.manager.HistoryManager;
 import com.sangupta.husk.util.HuskUtils;
 
 /**
@@ -76,12 +77,22 @@ public class HuskShell extends AbstractShell {
 	protected final Map<String, HuskShellCommand> COMMAND_MAP = new ConcurrentHashMap<String, HuskShellCommand>();
 	
 	/**
+	 * 
+	 */
+	protected final HuskShellOptions shellOptions = new HuskShellOptions();
+	
+	/**
 	 * Default constructor
 	 */
 	public HuskShell() {
 		this(0, 0);
 	}
 	
+	/**
+	 * Create a new {@link HuskShell} with the given {@link ConsoleType}.
+	 * 
+	 * @param consoleType
+	 */
 	public HuskShell(final ConsoleType consoleType) {
 		this(consoleType, 0, 0);
 	}
@@ -95,6 +106,11 @@ public class HuskShell extends AbstractShell {
 		this(ConsoleType.UI, rows, columns);
 	}
 	
+	/**
+	 * Create {@link HuskShell} instance with given parameters
+	 * 
+	 * 
+	 */
 	public HuskShell(final ConsoleType consoleType, final int rows, final int columns) {
 		this.console = Consoles.getConsole(consoleType, rows, columns);
 		this.shellContext = new DefaultHuskShellContext();
@@ -113,17 +129,6 @@ public class HuskShell extends AbstractShell {
 			}
 		});
 		
-		// add Ctrl+C hook
-		this.console.addKeyTrap(new InputKey('c', false, true), new KeyTrapHandler() {
-			
-			@Override
-			public boolean handleKeyInvocation(InputKey key) {
-				System.out.println("Ctrl+C pressed");
-				return false;
-			}
-			
-		});
-
 		this.console.switchStreams();
 	}
 	
@@ -174,6 +179,9 @@ public class HuskShell extends AbstractShell {
 			if(this.exitShellRequest) {
 				break;
 			}
+			
+			// check for command history persistence
+			HistoryManager.maintainCommandHistory(this.shellOptions, this.console.getConsoleID(), command);
 			
 			// extract the command and the arguments in a separate line
 			String[] tokens = command.split("\\s");
@@ -342,11 +350,28 @@ public class HuskShell extends AbstractShell {
 	 * 
 	 */
 	private void addSpecialKeyHooks() {
+		// add Ctrl+C hook
+		this.console.addKeyTrap(new InputKey('c', false, true), new KeyTrapHandler() {
+			
+			@Override
+			public boolean handleKeyInvocation(InputKey key) {
+				System.out.println("Ctrl+C pressed");
+				return false;
+			}
+			
+		});
+
+		// for up arrow
 		this.console.addKeyTrap(new InputKey(SpecialInputKey.UpArrow), new KeyTrapHandler() {
 			
 			@Override
 			public boolean handleKeyInvocation(InputKey key) {
-				System.out.println("Handled");
+				String command = HistoryManager.previous(console.getConsoleID());
+				if(command == null) {
+					return false;
+				}
+				
+				System.out.println(command);
 				return false;
 			}
 		});

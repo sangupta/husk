@@ -54,5 +54,11 @@ public interface HuskShellContext {
 	 * @param file
 	 */
 	public void changeCurrentDirectory(File file);
-	
+
+	/**
+	 * Execute the given command and params.
+	 * 
+	 * @param command
+	 */
+	public void executeCommand(String[] command);
 }
