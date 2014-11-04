@@ -223,11 +223,7 @@ public class HuskShell extends AbstractShell {
 					((HuskShellContextAware) shellCommand).setShellContext(this.shellContext);
 				}
 
-				try {
-					shellCommand.execute(arguments);
-				} catch(Throwable t) {
-					t.printStackTrace();
-				}
+				launchCommand(shellCommand, arguments);
 				
 				// output a single new line char
 				this.console.print('\n');
@@ -238,6 +234,36 @@ public class HuskShell extends AbstractShell {
 			this.console.println("Unknown command!");
 			this.console.print('\n');
 		} while(true);
+	}
+
+	/**
+	 * Launch the command in a separate thread and join it.
+	 * 
+	 * @param shellCommand
+	 * @param arguments
+	 */
+	private void launchCommand(final HuskShellCommand shellCommand, final String[] arguments) {
+		Thread childThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					shellCommand.execute(arguments);
+				} catch(Throwable t) {
+					t.printStackTrace();
+				}
+			}
+			
+		});
+		
+		childThread.start();
+		
+		try {
+			childThread.join();
+		} catch(InterruptedException e) {
+			childThread.interrupt();
+		}
+		
 	}
 
 	/**
