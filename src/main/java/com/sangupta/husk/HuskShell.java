@@ -118,8 +118,16 @@ public class HuskShell extends AbstractShell {
 	 */
 	public HuskShell(final ConsoleType consoleType, final int rows, final int columns) {
 		this.console = Consoles.getConsole(consoleType, rows, columns);
+		
+		// initialize command mapper
+		HuskCommandMapper mapper = new HuskCommandMapper(COMMAND_MAP);
+		
+		// initialize the context
 		this.shellContext = new DefaultHuskShellContext();
-		((DefaultHuskShellContext) this.shellContext).setConsole(this.console);
+		
+		DefaultHuskShellContext context = ((DefaultHuskShellContext) this.shellContext);
+		context.setConsole(this.console);
+		context.setCommandMapper(mapper);
 		
 		// add the shutdown hook
 		this.console.addShutdownHook(new Runnable() {

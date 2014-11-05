@@ -24,6 +24,7 @@ package com.sangupta.husk.core;
 import java.io.File;
 
 import com.sangupta.consoles.IConsole;
+import com.sangupta.husk.HuskShellCommand;
 
 /**
  * Marker interface for objects that need to be used as the Shell
@@ -60,5 +61,6 @@ public interface HuskShellContext {
 	 * 
 	 * @param command
 	 */
-	public void executeCommand(String[] command);
+	public HuskShellCommand obtainCommand(String commandName);
+	
 }

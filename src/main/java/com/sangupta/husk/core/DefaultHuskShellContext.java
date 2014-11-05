@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 
 import com.sangupta.consoles.IConsole;
+import com.sangupta.husk.HuskCommandMapper;
+import com.sangupta.husk.HuskShellCommand;
 
 /**
  * A default implementation of the {@link HuskShellContext} that allows for
@@ -45,6 +47,8 @@ public class DefaultHuskShellContext implements HuskShellContext {
 	 * The current directory that the shell is running in.
 	 */
 	protected File currentDirectory;
+	
+	protected HuskCommandMapper commandMapper;
 	
 	/**
 	 * Default constructor that sets the current directory to the folder
@@ -86,16 +90,35 @@ public class DefaultHuskShellContext implements HuskShellContext {
 		return this.console;
 	}
 
+	@Override
+	public HuskShellCommand obtainCommand(String commandName) {
+		if(this.commandMapper == null) {
+			return null;
+		}
+		
+		// obtain the command
+		HuskShellCommand command = this.commandMapper.obtain(commandName);
+		if(command == null) {
+			return null;
+		}
+		
+		// migrate the same context
+		if(command instanceof HuskShellContextAware) {
+			((HuskShellContextAware) command).setShellContext(this);
+		}
+		
+		return command;
+	}
+
 	/**
 	 * @param console the console to set
 	 */
 	public void setConsole(IConsole console) {
 		this.console = console;
 	}
-
-	@Override
-	public void executeCommand(String[] command) {
-		
+	
+	public void setCommandMapper(HuskCommandMapper mapper) {
+		this.commandMapper = mapper;
 	}
 
 }
