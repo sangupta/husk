@@ -82,6 +82,11 @@ public class HuskShell extends AbstractShell {
 	protected final HuskShellOptions shellOptions = new HuskShellOptions();
 	
 	/**
+	 * The thread in which the command is executed
+	 */
+	protected Thread commandExecutorThread = null;
+	
+	/**
 	 * Default constructor
 	 */
 	public HuskShell() {
@@ -322,7 +327,7 @@ public class HuskShell extends AbstractShell {
 	 *            the arguments to be passed to the command
 	 */
 	private void launchCommand(final HuskShellCommand shellCommand, final String[] arguments) {
-		Thread childThread = new Thread(new Runnable() {
+		commandExecutorThread = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
@@ -334,15 +339,14 @@ public class HuskShell extends AbstractShell {
 			}
 			
 		});
-		
-		childThread.start();
+		commandExecutorThread.setName("HuskShell-Command-Executor");
+		commandExecutorThread.start();
 		
 		try {
-			childThread.join();
+			commandExecutorThread.join();
 		} catch(InterruptedException e) {
-			childThread.interrupt();
+			commandExecutorThread.interrupt();
 		}
-		
 	}
 
 	/**
@@ -351,11 +355,19 @@ public class HuskShell extends AbstractShell {
 	 */
 	private void addSpecialKeyHooks() {
 		// add Ctrl+C hook
-		this.console.addKeyTrap(new InputKey('c', false, true), new KeyTrapHandler() {
+		this.console.addPriorityKeyTrap(new InputKey('c', false, true), new KeyTrapHandler() {
 			
 			@Override
 			public boolean handleKeyInvocation(InputKey key) {
-				System.out.println("Ctrl+C pressed");
+				System.out.println("^C");
+				if(commandExecutorThread == null) {
+					return false;
+				}
+				
+				if(commandExecutorThread.isAlive()) {
+					commandExecutorThread.interrupt();
+				}
+				
 				return false;
 			}
 			
