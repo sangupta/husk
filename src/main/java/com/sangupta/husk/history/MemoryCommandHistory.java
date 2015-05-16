@@ -43,7 +43,7 @@ public class MemoryCommandHistory implements CommandHistory {
 		}
 		
 		this.commands.add(command);
-		this.currentIndex = this.commands.size() - 1; 
+		this.currentIndex = this.commands.size(); 
 		return true;
 	}
 

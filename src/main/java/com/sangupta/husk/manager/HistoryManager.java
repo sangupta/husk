@@ -64,6 +64,10 @@ public class HistoryManager {
 		}
 
 		int index = history.previous();
+		if(index < 0) {
+			return null;
+		}
+		
 		return history.get(index);
 	}
 
