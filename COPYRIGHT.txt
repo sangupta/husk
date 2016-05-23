@@ -17,26 +17,3 @@
  * limitations under the License.
  * 
  */
-
-package com.sangupta.husk.util;
-
-/**
- * Contains generic utility methods to reduce dependency on other frameworks
- * like Apache Commons.
- * 
- * @author sangupta
- *
- */
-public class HuskUtils {
-
-	public static String rightPad(String str, int max, char pad) {
-		StringBuilder builder = new StringBuilder(str);
-		builder.setLength(max);
-		for(int index = str.length(); index < max; index++) {
-			builder.setCharAt(index, pad);
-		}
-		
-		return builder.toString();
-	}
-
-}

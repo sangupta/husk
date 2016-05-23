@@ -1,9 +1,8 @@
 /**
- *
- * Husk - Helps build command line shells
- * Copyright (c) 2013, Sandeep Gupta
+ * husk - cli shell framework
+ * Copyright (c) 2013-2016, Sandeep Gupta
  * 
- * http://www.sangupta/projects/husk
+ * http://sangupta/projects/husk
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javassist.Modifier;
-
 import org.reflections.Reflections;
 
 import com.sangupta.consoles.ConsoleType;
@@ -42,7 +39,9 @@ import com.sangupta.consoles.core.SpecialInputKey;
 import com.sangupta.husk.core.DefaultHuskShellContext;
 import com.sangupta.husk.core.HuskShellContextAware;
 import com.sangupta.husk.manager.HistoryManager;
-import com.sangupta.husk.util.HuskUtils;
+import com.sangupta.jerry.print.ConsoleTable;
+
+import javassist.Modifier;
 
 /**
  * Contract for all shell implementations over which powerful
@@ -407,32 +406,22 @@ public class HuskShell extends AbstractShell {
 		if(COMMAND_MAP == null || COMMAND_MAP.isEmpty()) {
 			return;
 		}
-		
-		// find max tool name length
-		int max = 0;
-		Set<String> commandNames = COMMAND_MAP.keySet();
-		for(String name : commandNames) {
-			if(max < name.length()) {
-				max = name.length();
-			}
-		}
-		
-		max += 3;
-		
+
 		// sort the command names
-		List<String> names = new ArrayList<String>(commandNames);
+		List<String> names = new ArrayList<String>(COMMAND_MAP.keySet());
 		Collections.sort(names);
+		
+		ConsoleTable table = new ConsoleTable();
 		
 		// show the list
 		for(String name : names) {
 			HuskShellCommand command = COMMAND_MAP.get(name);
 			String helpLine = command.getHelpLine();
 
-			this.console.print(HuskUtils.rightPad(name, max, ' '));
-			this.console.println(helpLine);
+			table.addRow(name, helpLine);
 		}
 		
-		this.console.print('\n');
+		this.console.print(table.toString());
 	}
 
 	/**

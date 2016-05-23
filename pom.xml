@@ -9,8 +9,8 @@
 	<packaging>jar</packaging>
 
 	<name>husk</name>
-	<description>Husk - Command-line Shell Framework</description>
-	<url>http://www.sangupta.com/projects/husk.html</url>
+	<description>husk - cli shell framework</description>
+	<url>http://sangupta.com/projects/husk.html</url>
 	<inceptionYear>2013</inceptionYear>
 
 	<properties>
@@ -55,6 +55,11 @@
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 			<version>0.9.9</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sangupta</groupId>
+			<artifactId>jerry-core</artifactId>
+			<version>2.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sangupta</groupId>
