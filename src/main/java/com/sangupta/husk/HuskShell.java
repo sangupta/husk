@@ -412,6 +412,7 @@ public class HuskShell extends AbstractShell {
 		Collections.sort(names);
 		
 		ConsoleTable table = new ConsoleTable();
+		table.addHeaderRow("Command", "Description");
 		
 		// show the list
 		for(String name : names) {
